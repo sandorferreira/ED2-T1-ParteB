@@ -16,7 +16,8 @@ typedef struct TipoItem {
 } TipoItem;
 
 typedef long int TipoIndice;
-long int i, n;
+long int i, n, tamBlocos;
+int ordemIntercalAux;
 
 //  --------------------------------------------
 //	Funções auxiliares para desordenar valores

@@ -79,7 +79,7 @@ void Ordena(TipoIndice Esq, TipoIndice Dir, TipoItem *A)
 }
 
 void QuickSort(TipoItem *A, TipoIndice n)
-{ Ordena(1, n, A); }
+{ Ordena(0, n-1, A); }
 
 // se cabem apenas 3 registros na memória e se possui 3 fitas. Esses 3 registros ( se completos ) 
 // geram na próxima fita 9 registros por intercalação.
@@ -116,33 +116,42 @@ int criaArquivosOrdenados(char *nomeArqEntrada, long int m) {
 	while(fread(&chave, sizeof(long int), 1, ArqEntrada) == 1) {
 		//if(feof(ArqEntrada)){ break;}
 		//fread(&chave, sizeof(long int), 1, ArqEntrada);
-		printf("%li ", chave);
+		//printf("%li ", chave);
 		//fscanf(ArqEntrada, "%li", &chave);
 		//V[total] = chave;
 		TipoItem aux; aux.Chave = chave; strcpy(aux.Peso,"12345678901234567890123"); //puts(aux.Peso);
 		Vaux[total] = aux;
 		total++;
 		if (total == registros) {
+			for(long int seila = 0; seila < total; seila++) {
+				//Vaux[seila] = Vaux[seila + 1];
+				printf("%li ", Vaux[seila].Chave);
+				
+			}
+			printf("\n");
+			printf("AGORA QUICKSORT --\n");
 			count++;
 			sprintf(novo, "Temp%d.bin", count);
 			QuickSort(Vaux, total);
-			for(long int seila = 0; seila <= total; seila++) {
-				//printf("%li\n", Vaux[seila].Chave);
-				Vaux[seila] = Vaux[seila + 1];
+			for(long int seila = 0; seila < total; seila++) {
+				//Vaux[seila] = Vaux[seila + 1];
+				printf("%li ", Vaux[seila].Chave);
+				
 			}
+			printf("\n");
 			//printf("aaaaaaaa\n");
-			for(long int seila=1;seila<total;seila++){
+			//for(long int seila=1;seila<total;seila++){
 				//printf("%li\n", Vaux[seila].Chave);
-			}
+			//}
 			salvaArquivo(novo, Vaux, total, registros, 0);
-			total = 0;
+			total = 0; chave = 0;
 		}
 	}
 
 	if (total > 0) {
 		count ++;
 		sprintf(novo, "Temp%d.bin", count);
-		QuickSort(Vaux, total - 1);
+		QuickSort(Vaux, total);
 		salvaArquivo(novo, Vaux, total, registros, 0);
 	}
 	//printf("%d", count);
@@ -162,16 +171,21 @@ int Minimo(int Lim, int High) {
 }
 
 void AbreArqEntrada(ArqEntradaTipo* ArrArqEnt, int Low, int Lim) {
-    char aux[30];
+    char aux[30]; long int auxChave;
+    printf("%d Lim - Low", (Lim - Low));
     for (int i = 0; i <= (Lim - Low); i++) {
-        sprintf(aux, "Temp%d.bin", (Low + i));
-        ArrArqEnt[i] = fopen(aux, "r");
+        sprintf(aux, "Temp%d.bin", (Low + i + 1));
+        ArrArqEnt[i] = fopen(aux, "rb");
+        // if(fread(&auxChave, sizeof(long int), 1, ArrArqEnt[i])==1) {
+        // 	printf("%li -- chave\n", auxChave);
+        // }
     }
 }
 
 ArqEntradaTipo AbreArqSaida(int NBlocos) {
     char aux[30];
-    sprintf(aux, "Temp%d.bin", NBlocos);
+    sprintf(aux, "Temp%d.bin", NBlocos+1);
+    printf("abrindo arquivo High Temp%d.bin", NBlocos + 1);
     ArqEntradaTipo saida = fopen(aux, "wb");
     return saida;
 }
@@ -179,87 +193,180 @@ ArqEntradaTipo AbreArqSaida(int NBlocos) {
 int retornaMenor(long int *chaves,long int n, ArqEntradaTipo ArqSaida) {
 	long int menor = chaves[0]; long int indice = 0;
 	for (i = 0; i < n; i++) {
-		if (chaves[i] < menor) {
+		if(menor == 0) {
+			menor = chaves[i+1];
+		}
+		if (chaves[i] <= menor && chaves[i] != 0) {
 			menor = chaves[i];
 			indice = i;
 		}
 	}
-	fprintf(ArqSaida, "%li ", menor);
+
+	printf("escrevendo MENOR: %li\n\n", menor);
+	fwrite(&menor, sizeof(long int), 1, ArqSaida);
 	return indice;
+
+	// long int indice2 = 0; long int auxCount = 0;
+	// for(i=0;i<n;i++) {
+	// 	if(chaves[i] == 0) {
+	// 		auxCount++;
+	// 	} else {
+	// 		indice2 = i;
+	// 	}
+	// }
+
+	// if((auxCount == n-1)) {
+	// 	menor = chaves[indice2];
+	// 	if(menor != 0 ){
+	// 		printf("escrevendo MENOR: %li\n\n", menor);
+	// 		fwrite(&menor, sizeof(long int), 1, ArqSaida);
+	// 	}
+	// 	return indice2;
+	// } else {
+
+	// }
+
+	// if(menor != 0 ){
+	// 	printf("escrevendo MENOR: %li\n\n", menor);
+	// 	fwrite(&menor, sizeof(long int), 1, ArqSaida);
+	// }
+	// //fprintf(ArqSaida, "%li ", menor);
+	// return indice;
 }
 
-long int retornaProximaChave(ArqEntradaTipo arq, long int count) {
-	long int aux = 0; int fim = 0;
-	while(!feof(arq) && fim == 0) {
-		aux++;
-		if(aux == count) {
-			fscanf(arq, "%li", &aux);
-			fim = 1;
-		}
+long int retornaProximaChave(ArqEntradaTipo arq, long int indice) {
+	long int aux = 0; long int chave;
+	fseek(arq, indice*sizeof(long int), SEEK_SET);
+	if(fread(&chave, sizeof(long int), 1, arq) == 1) {
+		return chave;
+	} else {
+		return 0;
 	}
-	return aux;
+
+	// for(i=0;i<=indice;i++) {
+	// 	if(fread(&chave, sizeof(long int), 1, arq) == 1) {
+	// 		printf("\n%li -- proxima chave\n", chave);
+	// 	} else {
+	// 		return 0;
+	// 	}
+	// }
+
+	// printf("\n%li -- proxima chave\n", chave);
+	// return chave;
+
+	// while(aux <indice) {
+	// 	if (fread(&chave, sizeof(long int), 1, arq) != 1) {
+	// 		if(aux >=10 && aux < 15 && !(feof(arq))) {
+	// 			fread(&chave, sizeof(long int), 1, arq);
+	// 		} else {
+	// 			return 0;
+	// 		}
+	// 	} 
+	// 	aux++;
+	// }
+	// printf("\n%li -- proxima chave\n", chave);
+	// return chave;
 }
 
 long int retornaTamanho(ArqEntradaTipo arq) {
 	long int count = 0;
+	long int chave;
 	while (!feof(arq)) {
 		count++;
 	}
+	fclose(arq);
 	return count;
 }
 
-int isCountIgualALimite(long int *count, long int *limite, long int n) {
+int chegouAoFim(long int *chaves, long int n) {
 	int aux = 0;
-	for (int i = 0; i < n; i ++) {
-		if (count[i] == limite[i]) {
-			aux++;
+	for(i=0;i<n;i++) {
+		if (chaves[i] == 0) {
+			aux = aux + 1;
 		}
 	}
 
-	if (aux == n) {
-		return -1;
+	if (aux >= n) {
+		return 1;
 	} else {
 		return 0;
 	}
 }
 
+// int isCountIgualALimite(long int *count, long int *limite, long int n) {
+// 	int aux = 0;
+// 	for (int i = 0; i < n; i ++) {
+// 		if (count[i] == limite[i]) {
+// 			aux++;
+// 		}
+// 	}
+
+// 	if (aux == n) {
+// 		return -1;
+// 	} else {
+// 		return 0;
+// 	}
+// }
+
 void Apague_Arquivo(int numeroArq) {
     char aux[30];
-    sprintf(aux, "Temp%d.bin", numeroArq);
+    sprintf(aux, "Temp%d.bin", numeroArq+1); printf("apagou arquivo Temp%d.bin\n", numeroArq+1);
     remove(aux);
 }
 
-void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSaida) {
-	int n = Lim - Low + 1; int indice = 0;
-	long int chaves[n];
-	long int count[n]; long int limite[n];
+void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSaida, long int m) {
+	 int n = Lim - Low + 1; printf("%d imprimindo N aqui", n);
+	 long int chaves[n];
+	 long int posicao[n]; long int indice;//long int limite[n]; //long int indice = 0;
+	 long int auxChave;
+	 int auxInt, fim = 0;
 
-	//inicializando todos os counts em 0
-	for(int i = 0; i < n; i ++) {
-		count[i] = 0;
-		limite[i] = retornaTamanho(ArrArqEnt[i]);
-	}
+	 for(i=0;i<n;i++) {
+	 	chaves[i] = (long int *) malloc((tamBlocos+1) * sizeof(long int));
+	 	posicao[i] = (long int *) malloc((tamBlocos+1) * sizeof(long int));
+	 }
 
-	int fim = 0;
+	 // long int vetorTodasChaves[n];
+	 // for(i=0;i<n;i++) {
+	 // 	vetorTodasChaves[i] = (long int *) malloc((tamBlocos+1) * sizeof(long int));
+	 // }
 
-	for(i = 0; i < (Lim - Low); i++) {
-		long int auxLI;
-		fscanf(ArrArqEnt[i], "%li", &auxLI); // pegando primeiro long int de cada arquivo
-		chaves[i] = auxLI;
-	}
+	// long int *inter1;
+	// inter1 = (long int *) malloc((tamBlocos+1) * sizeof(long int));
+	// long int *inter2;
+	// inter2 = (long int *) malloc((tamBlocos+1) * sizeof(long int));
+	// long int *inter3;
+	// inter3 = (long int *) malloc((tamBlocos+1) * sizeof(long int));
+	// long int *inter4;
+	// inter4 = (long int *) malloc((tamBlocos+1) * sizeof(long int));
 
-	do {
-		indice = retornaMenor(chaves, n, ArqSaida);
-		count[indice]++;
-		if (count[indice] != limite[indice] ) {
-			chaves[indice] = retornaProximaChave(ArrArqEnt[indice], count[indice]);
+
+
+	 for(i=0;i< n;i++) {
+	 	posicao[i] = 0;
+	 	long int auxLI;
+	 	if(fread(&auxLI, sizeof(long int), 1, ArrArqEnt[i])==1) {
+	 		chaves[i] = auxLI;
+	 		printf("leu a chave %li\n", auxLI);
+	 	}
+	 }
+
+	 while(fim == 0) {
+	 	fim++;
+	 	indice = retornaMenor(chaves, n, ArqSaida); printf("%li indice\n", indice); 
+		posicao[indice]++; // printf("posicao: %li -- deveria ser 2\n", posicao[indice]);
+		for(i=0;i<n;i++) {
+			printf("posicao: %li, ", posicao[i]);
+		}
+		chaves[indice] = retornaProximaChave(ArrArqEnt[indice], posicao[indice]); printf("%li proxima chave hehe\n", chaves[indice]);
+		for(i=0;i<n;i++) {
+			printf("%li\n", chaves[i]);
 		}
 
-		fim = isCountIgualALimite(count, limite, n);
-
-	} while (fim == 0);	
+		fim = chegouAoFim(chaves, n); //= isCountIgualALimite(posicao, limite, n); printf("%d FIM??",fim);
+	 }
+	
 }
-
 
 void OrdeneVetor(long int n, long int m, int OrdemIntercalConst, char *nomeArqEntrada) {
 	int NBlocos = 0;
@@ -270,19 +377,27 @@ void OrdeneVetor(long int n, long int m, int OrdemIntercalConst, char *nomeArqEn
 		NBlocos = criaArquivosOrdenados(nomeArqEntrada, m);
 		Low = 0;
 		High = NBlocos-1;
+
 		while (Low < High) /* Intercalacao dos NBlocos ordenados */
-		    { Lim = Minimo(Low + OrdemIntercalConst-1, High);
+		    { Lim = Minimo(Low + (OrdemIntercalConst-1), High);
 		      AbreArqEntrada(ArrArqEnt, Low, Lim);
-		      printf("FLAG 00\n");
 		      High++;
+		      printf("%d Low e %d Lim e %d High --", Low, Lim, High);
 		      ArqSaida = AbreArqSaida(High);
-		      Intercale(ArrArqEnt, Low, Lim, ArqSaida);
+		      printf("FLAG 00\n");
+		      Intercale(ArrArqEnt, Low, Lim, ArqSaida,m);
+		      //if(Lim == High) {
+		      	long int auxChave = 0;
+		      	while(fread(&auxChave, sizeof(long int), 1, ArqSaida) == 1) {
+		      		printf("%li ", auxChave);
+		      	}
+		      
 		      fclose(ArqSaida);
 		      for(i= Low; i < Lim; i++)
 		        { fclose(ArrArqEnt[i]);
-		          Apague_Arquivo(i);
+		          //Apague_Arquivo(i);
 		        }
-		      Low += OrdemIntercalConst;
+		      Low = Low + OrdemIntercalConst;
 		    }
 		    // char velhoNome[30], novoNome[30];
     		// sprintf(velhoNome, "%d", High);
@@ -290,12 +405,33 @@ void OrdeneVetor(long int n, long int m, int OrdemIntercalConst, char *nomeArqEn
 }
 
 int main() {
-	long int n = 50;
-	long int m = n / 4;
+	long int n = 2000000;
+	long int m = n / 4; tamBlocos = m;
 	criaArquivoAleatorio(n,"primeiro_arquivo.bin");
 	int aha = criaArquivosOrdenados("primeiro_arquivo.bin", m);
+	// for(i=1;i<5;i++) {
+	// printf("arquivo %d ordenado??---\n", i);
+	// long int chaveAux;
+	// char nome[30];
+	// sprintf(nome, "Temp%d.bin", i);
+	// ArqEntradaTipo aarq = fopen(nome, "rb");
+	// while(fread(&chaveAux, sizeof(long int), 1, aarq) ==1) {
+	// 	printf("%li \n", chaveAux);
+	// }
+	// }
 	printf("\n%d acabou\n", aha);
 	OrdeneVetor(n, m, 3, "primeiro_arquivo.bin");
+
+	for(i=1;i<7;i++) {
+	printf("arquivo %d ordenado??---\n", i);
+	long int chaveAux;
+	char nome[30];
+	sprintf(nome, "Temp%d.bin", i);
+	ArqEntradaTipo aarq = fopen(nome, "rb");
+	while(fread(&chaveAux, sizeof(long int), 1, aarq) ==1) {
+		printf("%li \n", chaveAux);
+	}
+	}
 
 	return 0;
 }

@@ -16,7 +16,7 @@ long int retornaProximaChave(ArqEntradaTipo arq, long int count);
 long int retornaTamanho(ArqEntradaTipo arq);
 int isCountIgualALimite(long int *count, long int *limite, long int n);
 void Apague_Arquivo(int numeroArq);
-void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSaida);
+void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSaida, long int m);
 // void Refaz(TipoIndice Esq, TipoIndice Dir, TipoItem *A);
 // void Constroi(TipoItem *A, TipoIndice n);
 // void Heapsort(TipoItem *A, TipoIndice n);
