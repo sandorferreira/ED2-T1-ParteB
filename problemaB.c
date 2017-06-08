@@ -424,7 +424,7 @@ int main() {
 	tMiliSec = ((final.tv_sec * 1000 + final.tv_usec/1000) - (inicio.tv_sec * 1000 + inicio.tv_usec/1000));
 	
 	//tMiliSec = ((final.tv_sec * 1000 + final.tv_usec/1000) - (inicio.tv_sec * 1000000 + inicio.tv_usec/1000));
-	printf("Tempo: %f  mili segundos", tMiliSec);
+	printf("Tempo: %f  mili segundos\n", tMiliSec);
 
 	return 0;
 }
