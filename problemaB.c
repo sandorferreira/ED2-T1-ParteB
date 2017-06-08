@@ -1,6 +1,6 @@
 // Teste Segunda Parte
-#import "criaArqAleatorio.h"
-#import "problemaB.h"
+#include "criaArqAleatorio.h"
+#include "problemaB.h"
 
 // FUNÇÃO PARA CRIAR ARQUIVOS PSEUDOALEATÓRIOS: 
 // --- criaArquivoAleatorio(long int tamanho, char* nome);
@@ -82,7 +82,7 @@ void QuickSort(TipoItem *A, TipoIndice n)
 // se cabem apenas 3 registros na memória e se possui 3 fitas. Esses 3 registros ( se completos ) 
 // geram na próxima fita 9 registros por intercalação.
 
-void salvaArquivo(char *nome, TipoItem *V, TipoIndice n, TipoIndice limite, int mudaLinhaFinal) {
+void salvaArquivo(char *nome, TipoItem *V, TipoIndice n) {
 	FILE *f = fopen(nome, "wb");
 	//fwrite(&V->Chave, sizeof(long int), n - 1, f);
 
@@ -94,16 +94,8 @@ void salvaArquivo(char *nome, TipoItem *V, TipoIndice n, TipoIndice limite, int 
 	fclose(f);
 }
 
-void verificaVetor(TipoItem *V, TipoIndice n) {
-	TipoItem *Aux;
-	for(int aux=1;i<=n;i++) {
-		Aux[aux-1] = V[aux];
-	}
-	V = Aux;
-}
-
 int criaArquivosOrdenados(char *nomeArqEntrada, long int m) {
-	long int registros = m; long int total = 0; long int count = 0;
+	long int registros = m; long int total = 0; int count = 0;
 	//long int V[registros]; 
 	long int chave;
 	TipoItem *Vaux;
@@ -119,7 +111,7 @@ int criaArquivosOrdenados(char *nomeArqEntrada, long int m) {
 			count++;
 			sprintf(novo, "Temp%d.bin", count);
 			QuickSort(Vaux, total);
-			salvaArquivo(novo, Vaux, total, registros, 0);
+			salvaArquivo(novo, Vaux, total);
 			total = 0; chave = 0;
 		}
 	}
@@ -128,7 +120,7 @@ int criaArquivosOrdenados(char *nomeArqEntrada, long int m) {
 		count ++;
 		sprintf(novo, "Temp%d.bin", count);
 		QuickSort(Vaux, total);
-		salvaArquivo(novo, Vaux, total, registros, 0);
+		salvaArquivo(novo, Vaux, total);
 	}
 	//printf("%d", count);
 
@@ -147,14 +139,10 @@ int Minimo(int Lim, int High) {
 }
 
 void AbreArqEntrada(ArqEntradaTipo* ArrArqEnt, int Low, int Lim) {
-    char aux[30]; long int auxChave;
-    //printf("%d Lim - Low", (Lim - Low));
+    char aux[30];
     for (int i = 0; i <= (Lim - Low); i++) {
         sprintf(aux, "Temp%d.bin", (Low + i + 1));
         ArrArqEnt[i] = fopen(aux, "rb");
-        // if(fread(&auxChave, sizeof(long int), 1, ArrArqEnt[i])==1) {
-        // 	printf("%li -- chave\n", auxChave);
-        // }
     }
 }
 
@@ -193,15 +181,14 @@ long int retornaProximaChave(ArqEntradaTipo arq, long int indice) {
 	}
 }
 
-long int retornaTamanho(ArqEntradaTipo arq) {
-	long int count = 0;
-	long int chave;
-	while (!feof(arq)) {
-		count++;
-	}
-	fclose(arq);
-	return count;
-}
+// long int retornaTamanho(ArqEntradaTipo arq) {
+// 	long int count = 0;
+// 	while (!feof(arq)) {
+// 		count++;
+// 	}
+// 	fclose(arq);
+// 	return count;
+// }
 
 int chegouAoFim(long int *chaves, long int n) {
 	int aux = 0;
@@ -224,12 +211,11 @@ void Apague_Arquivo(int numeroArq) {
     remove(aux);
 }
 
-void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSaida, long int m) {
+void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSaida) {
 	 int n = Lim - Low + 1; //printf("%d imprimindo N aqui", n);
 	 long int *chaves;// = NULL;
 	 long int *posicao; long int indice;//long int limite[n]; //long int indice = 0;
-	 long int auxChave;
-	 int auxInt, fim = 0;
+	 int fim = 0;
 
 	 chaves = (long int *) malloc(n*sizeof(long int));
 	 posicao = (long int *) malloc(n*sizeof(long int));
@@ -268,9 +254,9 @@ void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSa
 	
 }
 
-void OrdeneVetor(long int n, long int m, int OrdemIntercalConst, char *nomeArqEntrada, char *nomeSaida) {
+void OrdeneVetor(long int m, int OrdemIntercalConst, char *nomeArqEntrada, char *nomeSaida) {
 	int NBlocos = 0;
-  	ArqEntradaTipo ArqEntrada, ArqSaida;
+  	ArqEntradaTipo ArqSaida; // Arquivo de entrada é aberto pelo nome
 		ArqEntradaTipo ArrArqEnt[OrdemIntercalConst];
 		int Low, High, Lim;
 		NBlocos = 0;
@@ -282,22 +268,8 @@ void OrdeneVetor(long int n, long int m, int OrdemIntercalConst, char *nomeArqEn
 		    { Lim = Minimo(Low + (OrdemIntercalConst-1), High);
 		      AbreArqEntrada(ArrArqEnt, Low, Lim);
 		      High++;
-		      //printf("%d Low e %d Lim e %d High --", Low, Lim, High);
 		      ArqSaida = AbreArqSaida(High);
-		      //printf("FLAG 00\n");
-		      Intercale(ArrArqEnt, Low, Lim, ArqSaida, m);
-		      //fclose(ArqSaida);
-		      // if(Lim == 1) {
-		      // 	for(i= Low; i <= Lim; i++)
-		      //   { fclose(ArrArqEnt[i]);
-		      //     Apague_Arquivo(i);
-		      //   }
-		      // } else {
-		      	// for(i= Low; i < Lim; i++)
-		       //  	{ fclose(ArrArqEnt[i]);
-		       //    	Apague_Arquivo(i);
-		       //  	}
-		    	//}
+		      Intercale(ArrArqEnt, Low, Lim, ArqSaida);
 		      Low = Low + OrdemIntercalConst;
 		    }
 		    char aux[30];
@@ -307,82 +279,24 @@ void OrdeneVetor(long int n, long int m, int OrdemIntercalConst, char *nomeArqEn
 		    } else {
 		    	printf("\nArquivo de saida %s gerado\n", aux);
 		    }
+		    printf("\n\nCalculando tempo...\n");
 
 		    for(i=0;i<m;i++) {
 		    	Apague_Arquivo(i);
 		    }
 }
 
-// void OrdeneExternoB() {
-
-// 	struct timeval inicio, final;
-// 	char nomes[3][30] = {"primeiro_arquivo_1.bin", "primeiro_arquivo_2.bin","primeiro_arquivo_3.bin"};
-
-// 	long int n1 = 1048576;
-// 	long int n2 = 2097152;
-// 	long int n3 = 4194304;
-// 	long int auxN[3] = {n1, n2, n3};
-
-// 	long long tMiliSec[3][3][3]; 
-
-// 	for(int f=3;f<5;f++) {
-// 		for(i=0;i<4;i++) {
-// 			//calcula tempo
-// 			//if(f == 2) { f = 3;}
-// 			gettimeofday(&inicio, NULL);
-// 			//OrdeneVetor(auxN[i],auxN[i]/4,f,nomes[i]);
-// 			gettimeofday(&final, NULL);
-// 		    tMiliSec[f-2][i][0] = ((final.tv_sec * 1000 + final.tv_usec/1000) - (inicio.tv_sec * 1000 + inicio.tv_usec)/1000);
-// 		    for(i=2;i<7;i++) {
-// 		    	Apague_Arquivo(i);
-// 		    }
-
-// 			//calcula tempo
-// 			gettimeofday(&inicio, NULL);
-// 			//OrdeneVetor(auxN[i],auxN[i]/16,f,nomes[i]);
-// 			gettimeofday(&final, NULL);
-// 		    tMiliSec[f-2][i][1] = ((final.tv_sec * 1000 + final.tv_usec/1000) - (inicio.tv_sec * 1000000 + inicio.tv_usec/1000));
-// 		    for(i=2;i<7;i++) {
-// 		    	Apague_Arquivo(i);
-// 		    }
-
-// 			//calcula tempo
-// 			gettimeofday(&inicio, NULL);
-// 			//OrdeneVetor(auxN[i],auxN[i]/256,f,nomes[i]);
-// 			gettimeofday(&final, NULL);
-// 		    tMiliSec[f-2][i][2] = ((final.tv_sec * 1000 + final.tv_usec/1000) - (inicio.tv_sec * 1000000 + inicio.tv_usec/1000));
-// 		    for(i=2;i<6;i++) {
-// 		    	Apague_Arquivo(i);
-// 		    }
-// 		}
-// 	}
-
-// 	printf("f = 2\n");
-// 	printf("n            m=n/4            m=n/16            m=n/256");
-// 	printf("2^20            %lld            %lld            %lld", tMiliSec[1][0][0],tMiliSec[1][0][1],tMiliSec[1][0][2]);
-// 	printf("2^21            %lld            %lld            %lld", tMiliSec[1][1][0],tMiliSec[1][1][1],tMiliSec[1][1][2]);
-// 	printf("2^22            %lld            %lld            %lld", tMiliSec[1][2][0],tMiliSec[1][2][1],tMiliSec[1][2][2]);
-
-// 	printf("f = 3\n");
-// 	printf("n            m=n/4            m=n/16            m=n/256");
-// 	printf("2^20            %lld            %lld            %lld", tMiliSec[1][0][0],tMiliSec[1][0][1],tMiliSec[1][0][2]);
-// 	printf("2^21            %lld            %lld            %lld", tMiliSec[1][1][0],tMiliSec[1][1][1],tMiliSec[1][1][2]);
-// 	printf("2^22            %lld            %lld            %lld", tMiliSec[1][2][0],tMiliSec[1][2][1],tMiliSec[1][2][2]);
-
-// 	printf("f = 4\n");
-// 	printf("n            m=n/4            m=n/16            m=n/256");
-// 	printf("2^20            %lld            %lld            %lld", tMiliSec[2][0][0],tMiliSec[2][0][1],tMiliSec[2][0][2]);
-// 	printf("2^21            %lld            %lld            %lld", tMiliSec[2][1][0],tMiliSec[2][1][1],tMiliSec[2][1][2]);
-// 	printf("2^22            %lld            %lld            %lld", tMiliSec[2][2][0],tMiliSec[2][2][1],tMiliSec[2][2][2]);
-
-// }
-
 int main() {
 	//OrdeneExternoB();
 	long int n; int f; long int m;
-	int aux1, aux2, aux3; char auxnomearqsaida[50];
-	printf("------ TRABALHO 1 / PARTE 2 ------\n\n");
-	printf("Digite o valor de n:\n1: nˆ20\n2: nˆ21\n3:nˆ22\n\n");
+	int aux1, aux2, aux3; char auxnomearqsaida[100];
+	printf("--------------------------------------------------------\n");
+	printf("----------------- TRABALHO 1 / PARTE 2 -----------------\n");
+	printf("------------------ @ Sandor Ferreira -------------------\n");
+	printf("--------------------------------------------------------\n\n");
+
+
+	printf("Digite o valor de n:\n1: nˆ20\n2: nˆ21\n3: nˆ22\n\n");
 	scanf("%d", &aux1);
 	printf("\nDigite a Ordem de Intercalacao (f):\n1: f = 2\n2: f = 3\n3: f = 4\n");
 	scanf("%d", &aux2);
@@ -390,7 +304,7 @@ int main() {
 	scanf("%d", &aux3);
 	printf("\nDigite o nome do arquivo de saida:\n");
 	scanf("%s", auxnomearqsaida);
-	printf("\n\nCalculando tempo...\n");
+	printf("\n\n");
 
 	//long int n, m;
 
@@ -405,9 +319,13 @@ int main() {
 	f = aux2+1;
 	if(aux3 == 1) {
 		m = n / 4;
-	} else if(aux3 == 2) {
+	}
+
+	if(aux3 == 2) {
 		m = n / 16;
-	} else if(aux3 == 3) {
+	}
+
+	if(aux3 == 3) {
 		m = n / 256;
 	}
 
@@ -416,10 +334,11 @@ int main() {
 	struct timeval inicio, final;
 	double tMiliSec;
 
+	printf("Criando arquivo aleatorio...");
 	criaArquivoAleatorio(n, nomeArq);
 
 	gettimeofday(&inicio, NULL);
-	OrdeneVetor(n, m, f, nomeArq, auxnomearqsaida);
+	OrdeneVetor(m, f, nomeArq, auxnomearqsaida);
 	gettimeofday(&final, NULL);
 	tMiliSec = ((final.tv_sec * 1000 + final.tv_usec/1000) - (inicio.tv_sec * 1000 + inicio.tv_usec/1000));
 	

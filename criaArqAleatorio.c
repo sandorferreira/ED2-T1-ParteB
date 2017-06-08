@@ -46,8 +46,6 @@ void imprimeVetor(TipoItem *V, TipoIndice n) {
 }
 
 void criaArquivoAleatorio(TipoIndice n, char *nomeArquivo) {
-	//criaVetor(n);
-	printf("tentando..\n");
 	TipoItem *Aux;
 	Aux = (TipoItem *) malloc((n+1) * sizeof(TipoItem));
 	TipoItem *B;
