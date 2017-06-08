@@ -2,68 +2,29 @@
 #include "criaArqAleatorio.h"
 #include "problemaB.h"
 
+
+// -------------------------------------------------
+// ------------- TRABALHO 1 PARTE 2 ----------------
+// -------------------------------------------------
+// @Sandor Ferreira
+// @Andre Piona
+
 // FUNÇÃO PARA CRIAR ARQUIVOS PSEUDOALEATÓRIOS: 
 // --- criaArquivoAleatorio(long int tamanho, char* nome);
 
-void Refaz(TipoIndice Esq, TipoIndice Dir, TipoItem *A)
-{ TipoIndice i = Esq;
-  long int j;
-  TipoItem x;
-  j = i * 2;
-  x = A[i];
-  while (j <= Dir) 
-    { if (j < Dir) 
-      { if (A[j].Chave < A[j+1].Chave) {
-        j++;
-        }
-
-      }
-
-      if (x.Chave >= A[j].Chave) goto L999;
-      A[i] = A[j];
-      i = j;  j = i * 2;
-    }
-  L999: A[i] = x; //mov += 2;
-}
-
-void Constroi(TipoItem *A, TipoIndice n)
-{ TipoIndice Esq;
-  Esq = n / 2 + 1;
-  while (Esq > 1) 
-    { Esq--;
-      Refaz(Esq, n, A);
-    }
-}
-
-/*--Entra aqui a funcao Refaz do Programa 4.9 --*/
-/*--Entra aqui a funcao Constroi do Programa 4.10--*/
-
-void Heapsort(TipoItem *A, TipoIndice n)
-{ TipoIndice Esq, Dir;
-  TipoItem x;
-  Constroi(A, n);  /* constroi o heap */
-  Esq = 1;  Dir = n;
-  while (Dir > 1) 
-    { /* ordena o vetor */
-      x = A[1];  A[1] = A[Dir];  A[Dir] = x;  Dir--; //mov += 3; 
-      Refaz(Esq, Dir, A);
-    }
-}
-
-// Quick Sort
+// Quick Sort //
 
 void Particao(TipoIndice Esq, TipoIndice Dir, 
               TipoIndice *i, TipoIndice *j, TipoItem *A)
 { TipoItem x, w;
   *i = Esq;  *j = Dir;
-  x = A[(*i + *j) / 2]; //mov++; /* obtem o pivo x */
+  x = A[(*i + *j) / 2];
   do 
     { while (x.Chave > A[*i].Chave) {(*i)++; }
       while (x.Chave < A[*j].Chave) {(*j)--; }
       
       if (*i <= *j) 
       { w = A[*i]; A[*i] = A[*j]; A[*j] = w;
-        //mov+=3;
         (*i)++; (*j)--;
       }
     } while (*i <= *j);
@@ -79,8 +40,8 @@ void Ordena(TipoIndice Esq, TipoIndice Dir, TipoItem *A)
 void QuickSort(TipoItem *A, TipoIndice n)
 { Ordena(0, n-1, A); }
 
-// se cabem apenas 3 registros na memória e se possui 3 fitas. Esses 3 registros ( se completos ) 
-// geram na próxima fita 9 registros por intercalação.
+
+// funcao que cria e salva os arquivos intermediarios
 
 void salvaArquivo(char *nome, TipoItem *V, TipoIndice n) {
 	FILE *f = fopen(nome, "wb");
@@ -122,8 +83,6 @@ int criaArquivosOrdenados(char *nomeArqEntrada, long int m) {
 		QuickSort(Vaux, total);
 		salvaArquivo(novo, Vaux, total);
 	}
-	//printf("%d", count);
-
 	fclose(ArqEntrada); free(Vaux);
 	return count;
 }
@@ -149,7 +108,6 @@ void AbreArqEntrada(ArqEntradaTipo* ArrArqEnt, int Low, int Lim) {
 ArqEntradaTipo AbreArqSaida(int NBlocos) {
     char aux[30];
     sprintf(aux, "Temp%d.bin", NBlocos+1);
-    //printf("abrindo arquivo High Temp%d.bin", NBlocos + 1);
     ArqEntradaTipo saida = fopen(aux, "wb");
     return saida;
 }
@@ -165,8 +123,6 @@ int retornaMenor(long int *chaves,long int n, ArqEntradaTipo ArqSaida) {
 			indice = i;
 		}
 	}
-
-	//printf("escrevendo MENOR: %li\n", menor);
 	fwrite(&menor, sizeof(long int), 1, ArqSaida);
 	return indice;
 }
@@ -180,15 +136,6 @@ long int retornaProximaChave(ArqEntradaTipo arq, long int indice) {
 		return 0;
 	}
 }
-
-// long int retornaTamanho(ArqEntradaTipo arq) {
-// 	long int count = 0;
-// 	while (!feof(arq)) {
-// 		count++;
-// 	}
-// 	fclose(arq);
-// 	return count;
-// }
 
 int chegouAoFim(long int *chaves, long int n) {
 	int aux = 0;
@@ -207,14 +154,14 @@ int chegouAoFim(long int *chaves, long int n) {
 
 void Apague_Arquivo(int numeroArq) {
     char aux[30];
-    sprintf(aux, "Temp%d.bin", numeroArq+1); //printf("apagou arquivo Temp%d.bin\n", numeroArq+1);
+    sprintf(aux, "Temp%d.bin", numeroArq+1); 
     remove(aux);
 }
 
 void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSaida) {
-	 int n = Lim - Low + 1; //printf("%d imprimindo N aqui", n);
-	 long int *chaves;// = NULL;
-	 long int *posicao; long int indice;//long int limite[n]; //long int indice = 0;
+	 int n = Lim - Low + 1; 
+	 long int *chaves;
+	 long int *posicao; long int indice;
 	 int fim = 0;
 
 	 chaves = (long int *) malloc(n*sizeof(long int));
@@ -225,20 +172,18 @@ void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSa
 	 	long int auxLI;
 	 	if(fread(&auxLI, sizeof(long int), 1, ArrArqEnt[i])==1) {
 	 		chaves[i] = auxLI;
-	 		//printf("leu a chave %li\n", auxLI);
 	 	}
 	 }
 
 	 while(fim == 0) {
 	 	fim++;
-	 	indice = retornaMenor(chaves, n, ArqSaida); //printf("%li indice\n", indice); 
-		posicao[indice]++; // printf("posicao: %li -- deveria ser 2\n", posicao[indice]);
-		chaves[indice] = retornaProximaChave(ArrArqEnt[indice], posicao[indice]); //printf("%li proxima chave hehe\n", chaves[indice]);
+	 	indice = retornaMenor(chaves, n, ArqSaida);  
+		posicao[indice]++; 
+		chaves[indice] = retornaProximaChave(ArrArqEnt[indice], posicao[indice]);
 		for(i=0;i<n;i++) {
-			//printf("%li\n", chaves[i]);
 		}
 
-		fim = chegouAoFim(chaves, n); //= isCountIgualALimite(posicao, limite, n); printf("%d FIM??",fim);
+		fim = chegouAoFim(chaves, n);
 	 }
 
 	 	free(chaves); free(posicao);
@@ -246,7 +191,6 @@ void Intercale(ArqEntradaTipo* ArrArqEnt, int Low, int Lim, ArqEntradaTipo ArqSa
 	 	fclose(ArqSaida);
 	 	for(i=0;i<n;i++) {
 	 		fclose(ArrArqEnt[i]);
-	 		//Apague_Arquivo(i);
 	 	}
 	 	for(i=Low;i<Lim;i++) {
 	 		Apague_Arquivo(i);
@@ -293,6 +237,7 @@ int main() {
 	printf("--------------------------------------------------------\n");
 	printf("----------------- TRABALHO 1 / PARTE 2 -----------------\n");
 	printf("------------------ @ Sandor Ferreira -------------------\n");
+	printf("-------------------- @ Andre Piona ---------------------\n");
 	printf("--------------------------------------------------------\n\n");
 
 
@@ -342,7 +287,6 @@ int main() {
 	gettimeofday(&final, NULL);
 	tMiliSec = ((final.tv_sec * 1000 + final.tv_usec/1000) - (inicio.tv_sec * 1000 + inicio.tv_usec/1000));
 	
-	//tMiliSec = ((final.tv_sec * 1000 + final.tv_usec/1000) - (inicio.tv_sec * 1000000 + inicio.tv_usec/1000));
 	printf("Tempo: %f  mili segundos\n", tMiliSec);
 
 	return 0;
