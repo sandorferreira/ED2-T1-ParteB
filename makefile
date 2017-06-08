@@ -6,9 +6,9 @@ teste: criaArqAleatorio.o problemaB.o
 		gcc -o teste criaArqAleatorio.o problemaB.o
 #-----> Distancia com o botão TAB ### e não com espaços
 teste.o: criaArqAleatorio.c
-		gcc -o criaArqAleatorio.o -c criaArqAleatorio.c -W -Wall -pedantic
+		gcc -o criaArqAleatorio.o -c criaArqAleatorio.c -W -g -Wall -pedantic
 problemaB.o: problemaB.c criaArqAleatorio.h
-		gcc -o problemaB.o -c problemaB.c -W -Wall -pedantic
+		gcc -o problemaB.o -c problemaB.c -W -g -Wall -pedantic
 clean:
 		rm -rf *.o
 mrproper: clean

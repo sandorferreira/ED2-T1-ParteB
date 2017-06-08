@@ -27,6 +27,6 @@ void Refaz(TipoIndice Esq, TipoIndice Dir, TipoItem *A);
 void Constroi(TipoItem *A, TipoIndice n);
 void Heapsort(TipoItem *A, TipoIndice n);
 
-void OrdeneVetor(long int n,long int m, int OrdemIntercalConst, char *nomeArqEntrada);
+void OrdeneVetor(long int n,long int m, int OrdemIntercalConst, char *nomeArqEntrada, char *nomeSaida);
 
 #endif
