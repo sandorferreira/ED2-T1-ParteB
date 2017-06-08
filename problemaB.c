@@ -416,6 +416,8 @@ int main() {
 	struct timeval inicio, final;
 	double tMiliSec;
 
+	criaArquivoAleatorio(n, nomeArq);
+
 	gettimeofday(&inicio, NULL);
 	OrdeneVetor(n, m, f, nomeArq, auxnomearqsaida);
 	gettimeofday(&final, NULL);
